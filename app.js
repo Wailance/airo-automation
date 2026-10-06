@@ -8,6 +8,7 @@ const state = {
   dates: [],
   selectedDate: "",
   selectedSlot: null,
+  slots: [],
 };
 
 const dateList = document.querySelector("#date-list");
@@ -102,14 +103,16 @@ async function loadSlots(date) {
   state.selectedSlot = null;
   try {
     if (CONFIG.demoMode) {
-      renderSlots(demoSlots(date));
+      state.slots = demoSlots(date);
+      renderSlots(state.slots.filter((slot) => slot.date === date));
       return;
     }
     if (CONFIG.apiUrl.includes("PASTE_")) throw new Error("API_NOT_CONFIGURED");
-    const response = await fetch(getApiUrl("public_slots", date));
+    const response = await fetch(getApiUrl("public_slots"));
     const payload = await response.json();
     if (!payload.ok) throw new Error(payload.error?.message || "Не удалось загрузить расписание.");
-    renderSlots(payload.slots || []);
+    state.slots = payload.slots || [];
+    renderSlots(state.slots.filter((slot) => slot.date === date));
   } catch (error) {
     slotList.innerHTML = "";
     setCalendarError(error.message === "API_NOT_CONFIGURED"
@@ -159,7 +162,11 @@ function chooseDate(value) {
   if (isWeekend(new Date(`${value}T12:00:00`))) return;
   state.selectedDate = value;
   renderDates();
-  loadSlots(value);
+  if (state.slots.length) {
+    renderSlots(state.slots.filter((slot) => slot.date === value));
+  } else {
+    loadSlots(value);
+  }
 }
 
 function showTime() {
