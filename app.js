@@ -26,6 +26,11 @@ const selectedDate = document.querySelector("#selected-date");
 const formError = document.querySelector("#form-error");
 const successState = document.querySelector("#success-state");
 const stepLabel = document.querySelector("#step-label");
+const consentInput = document.querySelector("#consent-checkbox");
+const submitBookingButton = document.querySelector("#submit-booking-button");
+const consentHint = document.querySelector("#consent-hint");
+const calendarButton = document.querySelector("#calendar-button");
+const googleCalendarLink = document.querySelector("#google-calendar-link");
 
 const monthFormatter = new Intl.DateTimeFormat("ru-RU", { month: "long" });
 const weekdayFormatter = new Intl.DateTimeFormat("ru-RU", { weekday: "short" });
@@ -193,8 +198,12 @@ async function submitBooking(event) {
   const clientName = String(data.get("client_name") || "").trim();
   const phone = String(data.get("phone") || "").trim();
   const interest = String(data.get("interest") || "").trim();
-  if (!clientName || !phone || !interest || !data.get("consent")) return;
-  const submitButton = bookingForm.querySelector(".primary-button");
+  if (!data.get("consent")) {
+    formError.textContent = "Для записи подтвердите согласие на обработку персональных данных.";
+    return;
+  }
+  if (!clientName || !phone || !interest) return;
+  const submitButton = submitBookingButton;
   submitButton.disabled = true;
   submitButton.textContent = "Подтверждаем…";
   try {
@@ -233,8 +242,71 @@ function showSuccess() {
   bookingForm.hidden = true;
   successState.hidden = false;
   stepLabel.textContent = "Готово";
+  setupCalendarActions();
   document.querySelector("#success-copy").textContent =
     `Пробный урок на ${formatDateLabel(new Date(`${state.selectedSlot.date}T12:00:00`))} в ${state.selectedSlot.start_time} подтверждён. ${CONFIG.demoMode ? "Это демонстрационная запись: данные никуда не отправлены." : "Мы свяжемся с вами по телефону для деталей."}`;
+}
+
+function calendarDateValue(date, time) {
+  return new Date(`${date}T${time}:00+03:00`);
+}
+
+function calendarUtcValue(date) {
+  return date.toISOString().replace(/[-:]/g, "").replace(/\.\d{3}Z$/, "Z");
+}
+
+function escapeIcsText(value) {
+  return String(value)
+    .replace(/\\/g, "\\\\")
+    .replace(/;/g, "\\;")
+    .replace(/,/g, "\\,")
+    .replace(/\r?\n/g, "\\n");
+}
+
+function setupCalendarActions() {
+  const slot = state.selectedSlot;
+  if (!slot) return;
+
+  const start = calendarDateValue(slot.date, slot.start_time);
+  const end = calendarDateValue(slot.date, slot.end_time);
+  const title = "Пробное занятие по дронам «АэрогениИ»";
+  const location = "Киров, ул. Широтная, д. 2";
+  const description = "Бесплатное пробное занятие. Практика с инструктором, оборудование на месте.";
+  const googleUrl = new URL("https://calendar.google.com/calendar/render");
+  googleUrl.searchParams.set("action", "TEMPLATE");
+  googleUrl.searchParams.set("text", title);
+  googleUrl.searchParams.set("dates", `${calendarUtcValue(start)}/${calendarUtcValue(end)}`);
+  googleUrl.searchParams.set("details", description);
+  googleUrl.searchParams.set("location", location);
+  googleCalendarLink.href = googleUrl.toString();
+
+  calendarButton.onclick = () => {
+    const ics = [
+      "BEGIN:VCALENDAR",
+      "VERSION:2.0",
+      "PRODID:-//Aerogenii//Trial lesson//RU",
+      "CALSCALE:GREGORIAN",
+      "BEGIN:VEVENT",
+      `UID:${Date.now()}@airo-site-kirov.ru`,
+      `DTSTAMP:${calendarUtcValue(new Date())}`,
+      `DTSTART:${calendarUtcValue(start)}`,
+      `DTEND:${calendarUtcValue(end)}`,
+      `SUMMARY:${escapeIcsText(title)}`,
+      `DESCRIPTION:${escapeIcsText(description)}`,
+      `LOCATION:${escapeIcsText(location)}`,
+      "END:VEVENT",
+      "END:VCALENDAR",
+    ].join("\r\n");
+    const blob = new Blob([ics], { type: "text/calendar;charset=utf-8" });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement("a");
+    link.href = url;
+    link.download = `probnoe-zanyatie-${slot.date}.ics`;
+    document.body.appendChild(link);
+    link.click();
+    link.remove();
+    setTimeout(() => URL.revokeObjectURL(url), 1000);
+  };
 }
 
 function init() {
@@ -250,6 +322,13 @@ function init() {
   timeContinueButton.addEventListener("click", showForm);
   document.querySelector("#back-to-date-button").addEventListener("click", showDate);
   document.querySelector("#back-button").addEventListener("click", showTimeFromForm);
+  consentInput.addEventListener("change", () => {
+    const agreed = consentInput.checked;
+    submitBookingButton.disabled = !agreed;
+    consentHint.hidden = agreed;
+  });
+  submitBookingButton.disabled = true;
+  consentHint.hidden = false;
   bookingForm.addEventListener("submit", submitBooking);
 }
 

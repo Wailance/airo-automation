@@ -108,12 +108,13 @@
             </select>
           </label>
           <label class="consent">
-            <input name="consent" type="checkbox" required />
+            <input id="consent-checkbox" name="consent" type="checkbox" required />
             <span>Соглашаюсь на обработку персональных данных</span>
           </label>
+          <p class="consent-hint" id="consent-hint">Чтобы записаться, подтвердите согласие на обработку персональных данных.</p>
           <input class="honeypot" name="website" tabindex="-1" autocomplete="off" />
           <p class="form-error" id="form-error" role="alert"></p>
-          <button class="primary-button" type="submit">Подтвердить запись</button>
+          <button class="primary-button" id="submit-booking-button" type="submit" disabled>Подтвердить запись</button>
         </form>
 
         <div class="success-state" id="success-state" hidden>
@@ -121,6 +122,13 @@
           <p class="section-kicker">Запись подтверждена</p>
           <h2>Ждём вас на пробном уроке</h2>
           <p id="success-copy"></p>
+          <button class="secondary-button calendar-button" id="calendar-button" type="button">
+            <i data-lucide="calendar-plus" aria-hidden="true"></i>
+            Добавить в календарь
+          </button>
+          <a class="calendar-link" id="google-calendar-link" href="#" target="_blank" rel="noopener">
+            Открыть в Google Calendar
+          </a>
           <a class="secondary-button" href="https://airo-site-kirov.ru/">Вернуться на сайт</a>
         </div>
       </section>
