@@ -1,0 +1,257 @@
+const CONFIG = {
+  // Demo mode lets the whole flow run without Apps Script.
+  demoMode: true,
+  apiUrl: "PASTE_APPS_SCRIPT_EXEC_URL_HERE",
+  daysToShow: 10,
+};
+
+const state = {
+  dates: [],
+  selectedDate: "",
+  selectedSlot: null,
+};
+
+const dateList = document.querySelector("#date-list");
+const slotList = document.querySelector("#slot-list");
+const dateRange = document.querySelector("#date-range");
+const calendarError = document.querySelector("#calendar-error");
+const timeError = document.querySelector("#time-error");
+const dateContinueButton = document.querySelector("#date-continue-button");
+const timeContinueButton = document.querySelector("#time-continue-button");
+const dateView = document.querySelector("#date-view");
+const timeView = document.querySelector("#time-view");
+const bookingForm = document.querySelector("#booking-form");
+const selectedSlot = document.querySelector("#selected-slot");
+const selectedDate = document.querySelector("#selected-date");
+const formError = document.querySelector("#form-error");
+const successState = document.querySelector("#success-state");
+const stepLabel = document.querySelector("#step-label");
+
+const monthFormatter = new Intl.DateTimeFormat("ru-RU", { month: "long" });
+const weekdayFormatter = new Intl.DateTimeFormat("ru-RU", { weekday: "short" });
+const dateFormatter = new Intl.DateTimeFormat("ru-RU", { day: "numeric", month: "long" });
+
+function localDate(offset) {
+  const date = new Date();
+  date.setHours(12, 0, 0, 0);
+  date.setDate(date.getDate() + offset);
+  return date;
+}
+
+function isWeekend(date) {
+  return date.getDay() === 0 || date.getDay() === 6;
+}
+
+function nextBusinessDates(count) {
+  const dates = [];
+  let offset = 1;
+  while (dates.length < count) {
+    const date = localDate(offset);
+    if (!isWeekend(date)) dates.push(date);
+    offset += 1;
+  }
+  return dates;
+}
+
+function nextCalendarDates(count) {
+  return Array.from({ length: count }, (_, index) => localDate(index + 1));
+}
+
+function isoDate(date) {
+  return date.toISOString().slice(0, 10);
+}
+
+function formatDateLabel(date) {
+  return dateFormatter.format(date).replace(" г.", "");
+}
+
+function setCalendarError(message) {
+  calendarError.textContent = message || "";
+}
+
+function getApiUrl(action, date) {
+  const url = new URL(CONFIG.apiUrl);
+  url.searchParams.set("action", action);
+  if (date) url.searchParams.set("date", date);
+  return url;
+}
+
+function demoSlots(date) {
+  return Array.from({ length: 9 }, (_, index) => {
+    const startHour = 11 + index;
+    return {
+      slot_id: `${date}-trial-${String(startHour).padStart(2, "0")}00`,
+      date,
+      start_time: `${String(startHour).padStart(2, "0")}:00`,
+      end_time: `${String(startHour + 1).padStart(2, "0")}:00`,
+      location: "Учебный корпус",
+      available_participants: 10,
+    };
+  });
+}
+
+async function loadSlots(date) {
+  setCalendarError("");
+  timeError.textContent = "";
+  slotList.innerHTML = '<div class="empty-state">Загружаем свободное время…</div>';
+  timeContinueButton.disabled = true;
+  state.selectedSlot = null;
+  try {
+    if (CONFIG.demoMode) {
+      renderSlots(demoSlots(date));
+      return;
+    }
+    if (CONFIG.apiUrl.includes("PASTE_")) throw new Error("API_NOT_CONFIGURED");
+    const response = await fetch(getApiUrl("public_slots", date));
+    const payload = await response.json();
+    if (!payload.ok) throw new Error(payload.error?.message || "Не удалось загрузить расписание.");
+    renderSlots(payload.slots || []);
+  } catch (error) {
+    slotList.innerHTML = "";
+    setCalendarError(error.message === "API_NOT_CONFIGURED"
+      ? "Страница почти готова: укажите URL опубликованного Apps Script в app.js."
+      : "Не удалось загрузить расписание. Попробуйте обновить страницу.");
+  }
+}
+
+function renderDates() {
+  const visibleDates = state.dates;
+  dateList.innerHTML = visibleDates.map((date) => {
+    const value = isoDate(date);
+    const weekend = isWeekend(date);
+    const selected = value === state.selectedDate ? " selected" : "";
+    return `<button class="date-option${selected}${weekend ? " weekend" : ""}" type="button" data-date="${value}" role="option" aria-selected="${Boolean(selected)}" ${weekend ? "disabled" : ""}>
+      <span class="weekday">${weekdayFormatter.format(date).replace(".", "")}</span>
+      <span class="day">${date.getDate()}</span>
+    </button>`;
+  }).join("");
+  const first = visibleDates[0];
+  const last = visibleDates[visibleDates.length - 1];
+  dateRange.textContent = first && last
+    ? `${monthFormatter.format(first)} — ${monthFormatter.format(last)}`
+    : "Расписание";
+}
+
+function renderSlots(slots) {
+  if (!slots.length) {
+    slotList.innerHTML = '<div class="empty-state">На этот день свободных мест нет. Выберите другую дату.</div>';
+    return;
+  }
+  slotList.innerHTML = slots.map((slot) => `
+    <button class="slot-option" type="button" data-slot-id="${slot.slot_id}">
+      ${slot.start_time}–${slot.end_time}
+    </button>`).join("");
+  slotList.querySelectorAll(".slot-option").forEach((button) => {
+    button.addEventListener("click", () => {
+      slotList.querySelectorAll(".slot-option").forEach((item) => item.classList.remove("selected"));
+      button.classList.add("selected");
+      state.selectedSlot = slots.find((slot) => slot.slot_id === button.dataset.slotId);
+      timeContinueButton.disabled = false;
+    });
+  });
+}
+
+function chooseDate(value) {
+  if (isWeekend(new Date(`${value}T12:00:00`))) return;
+  state.selectedDate = value;
+  renderDates();
+  loadSlots(value);
+}
+
+function showTime() {
+  dateView.hidden = true;
+  timeView.hidden = false;
+  stepLabel.textContent = "Шаг 2 из 3";
+  selectedDate.textContent = formatDateLabel(new Date(`${state.selectedDate}T12:00:00`));
+}
+
+function showDate() {
+  timeView.hidden = true;
+  dateView.hidden = false;
+  stepLabel.textContent = "Шаг 1 из 3";
+}
+
+function showForm() {
+  if (!state.selectedSlot) return;
+  timeView.hidden = true;
+  bookingForm.hidden = false;
+  stepLabel.textContent = "Шаг 3 из 3";
+  selectedSlot.textContent = `${formatDateLabel(new Date(`${state.selectedSlot.date}T12:00:00`))}, ${state.selectedSlot.start_time}–${state.selectedSlot.end_time}`;
+  document.querySelector('[name="client_name"]').focus();
+}
+
+function showTimeFromForm() {
+  bookingForm.hidden = true;
+  timeView.hidden = false;
+  stepLabel.textContent = "Шаг 2 из 3";
+}
+
+async function submitBooking(event) {
+  event.preventDefault();
+  formError.textContent = "";
+  const data = new FormData(bookingForm);
+  const clientName = String(data.get("client_name") || "").trim();
+  const phone = String(data.get("phone") || "").trim();
+  const interest = String(data.get("interest") || "").trim();
+  if (!clientName || !phone || !interest || !data.get("consent")) return;
+  const submitButton = bookingForm.querySelector(".primary-button");
+  submitButton.disabled = true;
+  submitButton.textContent = "Подтверждаем…";
+  try {
+    if (CONFIG.demoMode) {
+      await new Promise((resolve) => setTimeout(resolve, 450));
+      showSuccess();
+      return;
+    }
+    const response = await fetch(CONFIG.apiUrl, {
+      method: "POST",
+      headers: { "Content-Type": "text/plain;charset=utf-8" },
+      body: JSON.stringify({
+        action: "public_book",
+        slot_id: state.selectedSlot.slot_id,
+        client_name: clientName,
+        phone,
+        interest,
+        consent: true,
+        website: data.get("website") || "",
+        idempotency_key: `website-${crypto.randomUUID()}`,
+      }),
+    });
+    const payload = await response.json();
+    if (!payload.ok) throw new Error(payload.error?.message || "Запись не создана.");
+    showSuccess();
+  } catch (error) {
+    formError.textContent = error.message.includes("SLOT") || error.message.includes("занят")
+      ? "Это время уже заняли. Вернитесь и выберите другой слот."
+      : "Не удалось создать запись. Проверьте данные и попробуйте ещё раз.";
+    submitButton.disabled = false;
+    submitButton.textContent = "Подтвердить запись";
+  }
+}
+
+function showSuccess() {
+  bookingForm.hidden = true;
+  successState.hidden = false;
+  stepLabel.textContent = "Готово";
+  document.querySelector("#success-copy").textContent =
+    `Пробный урок на ${formatDateLabel(new Date(`${state.selectedSlot.date}T12:00:00`))} в ${state.selectedSlot.start_time} подтверждён. ${CONFIG.demoMode ? "Это демонстрационная запись: данные никуда не отправлены." : "Мы свяжемся с вами по телефону для деталей."}`;
+}
+
+function init() {
+  state.dates = nextCalendarDates(14);
+  state.selectedDate = isoDate(state.dates.find((date) => !isWeekend(date)));
+  renderDates();
+  loadSlots(state.selectedDate);
+  dateList.addEventListener("click", (event) => {
+    const button = event.target.closest("[data-date]");
+    if (button) chooseDate(button.dataset.date);
+  });
+  dateContinueButton.addEventListener("click", showTime);
+  timeContinueButton.addEventListener("click", showForm);
+  document.querySelector("#back-to-date-button").addEventListener("click", showDate);
+  document.querySelector("#back-button").addEventListener("click", showTimeFromForm);
+  bookingForm.addEventListener("submit", submitBooking);
+}
+
+init();
+if (window.lucide) window.lucide.createIcons();

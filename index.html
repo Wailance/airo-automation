@@ -1,0 +1,131 @@
+<!doctype html>
+<html lang="ru">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="description" content="Запись на бесплатный пробный урок по управлению дроном в школе «АэрогениИ»." />
+    <title>Запись на пробный урок | АэрогениИ</title>
+    <link rel="preload" as="image" href="./hero-source.jpg" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+    <link rel="stylesheet" href="./styles.css" />
+  </head>
+  <body>
+    <main class="booking-shell">
+      <section class="intro">
+        <a class="brand" href="https://airo-site-kirov.ru/" aria-label="АэрогениИ">
+          <img class="brand-logo" src="./logo.png" alt="АэрогениИ" decoding="async" />
+        </a>
+        <div class="intro-copy">
+          <p class="eyebrow">Школа операторов БПЛА</p>
+          <h1>Попробуйте управлять дроном</h1>
+          <p class="lead">Бесплатный пробный урок в «АэрогениИ». Один час практики с инструктором.</p>
+        </div>
+        <div class="intro-benefits" aria-label="Преимущества пробного урока">
+          <div class="benefit">
+            <span class="benefit-icon" aria-hidden="true">
+              <i data-lucide="gamepad-2"></i>
+            </span>
+            <span class="benefit-copy"><strong>Практика</strong><small>с инструктором</small></span>
+          </div>
+          <div class="benefit">
+            <span class="benefit-icon" aria-hidden="true">
+              <i data-lucide="clock-3"></i>
+            </span>
+            <span class="benefit-copy"><strong>1 час</strong><small>без опыта</small></span>
+          </div>
+          <div class="benefit">
+            <span class="benefit-icon" aria-hidden="true">
+              <i data-lucide="package-check"></i>
+            </span>
+            <span class="benefit-copy"><strong>Бесплатно</strong><small>оборудование на месте</small></span>
+          </div>
+        </div>
+        <div class="intro-note">
+          <span class="note-icon" aria-hidden="true">1 ч</span>
+          <span>Выберите дату и время — менеджер подтвердит запись.</span>
+        </div>
+        <p class="demo-note">Данные не отправляются в демо-режиме.</p>
+      </section>
+
+      <section class="booking-panel" aria-labelledby="booking-title">
+        <div class="panel-header">
+          <div>
+            <p class="section-kicker">Бесплатный пробный урок</p>
+            <h2 id="booking-title">Выберите удобное время</h2>
+          </div>
+          <span class="step-count" id="step-label">Шаг 1 из 3</span>
+        </div>
+
+        <div id="date-view">
+          <div class="date-toolbar">
+            <div>
+              <p class="date-range" id="date-range">Загрузка расписания</p>
+              <p class="muted">1 час практики · будни · группы до 10 человек</p>
+            </div>
+          </div>
+          <div class="date-list" id="date-list" role="listbox" aria-label="Дни пробных уроков"></div>
+          <p class="form-error" id="calendar-error" role="alert"></p>
+          <button class="primary-button" id="date-continue-button" type="button">Выбрать дату</button>
+        </div>
+
+        <div id="time-view" hidden>
+          <button class="back-button" id="back-to-date-button" type="button">← Вернуться к выбору даты</button>
+          <div class="selected-slot selected-date" id="selected-date"></div>
+          <p class="muted time-hint">Доступное время на выбранную дату</p>
+          <div class="slot-list" id="slot-list" aria-live="polite"></div>
+          <p class="form-error" id="time-error" role="alert"></p>
+          <button class="primary-button" id="time-continue-button" type="button" disabled>Выбрать время</button>
+        </div>
+
+        <form id="booking-form" hidden>
+          <button class="back-button" id="back-button" type="button">← Вернуться к выбору времени</button>
+          <div class="selected-slot" id="selected-slot"></div>
+          <p class="form-assurance">Оставьте номер телефона — менеджер подтвердит запись и ответит на вопросы.</p>
+          <label>
+            Как вас зовут
+            <input name="client_name" type="text" autocomplete="name" placeholder="Введите имя" maxlength="120" required />
+          </label>
+          <label>
+            Телефон для подтверждения
+            <input name="phone" type="tel" autocomplete="tel" placeholder="+7 (___) ___-__-__" maxlength="40" required />
+          </label>
+          <label>
+            Для чего хотите освоить дроны?
+            <select name="interest" required>
+              <option value="" selected disabled>Выберите, что вам ближе</option>
+              <option value="Сельское хозяйство">Сельское хозяйство</option>
+              <option value="Геодезия и картография">Геодезия и картография</option>
+              <option value="Поисково-спасательные работы">Поисково-спасательные работы</option>
+              <option value="Энергетика">Энергетика</option>
+              <option value="Кино и медиа">Кино и медиа</option>
+              <option value="Безопасность">Безопасность</option>
+              <option value="Профессия оператора БПЛА">Профессия оператора БПЛА</option>
+              <option value="FPV и сборка дронов">FPV и сборка дронов</option>
+              <option value="Для себя и хобби">Для себя и хобби</option>
+              <option value="Пока не определился">Пока не определился</option>
+            </select>
+          </label>
+          <label class="consent">
+            <input name="consent" type="checkbox" required />
+            <span>Соглашаюсь на обработку персональных данных</span>
+          </label>
+          <input class="honeypot" name="website" tabindex="-1" autocomplete="off" />
+          <p class="form-error" id="form-error" role="alert"></p>
+          <button class="primary-button" type="submit">Подтвердить запись</button>
+        </form>
+
+        <div class="success-state" id="success-state" hidden>
+          <div class="success-icon" aria-hidden="true">✓</div>
+          <p class="section-kicker">Запись подтверждена</p>
+          <h2>Ждём вас на пробном уроке</h2>
+          <p id="success-copy"></p>
+          <a class="secondary-button" href="https://airo-site-kirov.ru/">Вернуться на сайт</a>
+        </div>
+      </section>
+    </main>
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <script src="./app.js"></script>
+  </body>
+</html>
