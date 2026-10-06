@@ -40,17 +40,6 @@ button { cursor: pointer; }
     url("./hero-source.jpg") center / cover;
 }
 
-.intro::after {
-  content: "";
-  position: absolute;
-  width: 330px;
-  height: 330px;
-  right: -100px;
-  bottom: 11%;
-  border: 1px solid rgba(255, 255, 255, .18);
-  border-radius: 50%;
-}
-
 .brand { position: relative; z-index: 1; display: inline-flex; align-items: center; width: fit-content; color: inherit; text-decoration: none; }
 .brand-logo { display: block; width: 166px; height: auto; filter: brightness(0) invert(1); }
 .intro-copy { position: relative; z-index: 1; max-width: 520px; padding: 70px 0 42px; }
@@ -77,9 +66,7 @@ h2 { margin-bottom: 0; font-size: clamp(26px, 3vw, 38px); line-height: 1.1; lett
 .date-toolbar { display: flex; align-items: center; gap: 18px; margin-bottom: 22px; }
 .date-range { margin-bottom: 4px; font-size: 15px; font-weight: 800; }
 .muted { margin: 0; color: var(--muted); font-size: 12px; }
-.icon-button, .back-button { border: 0; background: transparent; color: var(--blue); }
-.icon-button { width: 40px; height: 40px; border: 1px solid var(--line); border-radius: 50%; font-size: 20px; }
-.icon-button:disabled { opacity: .35; cursor: default; }
+.back-button { border: 0; background: transparent; color: var(--blue); }
 .date-list { display: grid; grid-template-columns: repeat(7, 1fr); gap: 8px; margin-bottom: 28px; }
 .date-option { min-height: 76px; padding: 10px 6px; border: 1px solid var(--line); border-radius: 6px; background: var(--paper); color: var(--ink); }
 .date-option span { display: block; }
@@ -92,7 +79,6 @@ h2 { margin-bottom: 0; font-size: clamp(26px, 3vw, 38px); line-height: 1.1; lett
 .slot-list { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; min-height: 56px; margin-bottom: 24px; }
 .slot-option { min-height: 54px; border: 1px solid var(--line); border-radius: 5px; background: var(--paper); color: var(--ink); font-weight: 700; }
 .slot-option:hover, .slot-option.selected { border-color: var(--blue); background: #edf2ff; }
-.empty-state { grid-column: 1 / -1; padding: 18px; color: var(--muted); background: #f1eee6; font-size: 13px; text-align: center; }
 .primary-button, .secondary-button { display: inline-flex; align-items: center; justify-content: center; min-height: 54px; padding: 0 24px; border-radius: 4px; font-weight: 800; text-decoration: none; }
 .primary-button { width: 100%; border: 1px solid var(--blue); background: var(--blue); color: white; }
 .primary-button:hover { background: var(--blue-dark); }

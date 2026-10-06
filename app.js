@@ -1,7 +1,6 @@
 const CONFIG = {
-  demoMode: false,
   apiUrl: "https://script.google.com/macros/s/AKfycbyi0Xzq_tGh5WqinBHOegZ3aOA4-b2D_1YFFABMjZXhDT11n4aquIMM5gWvo80aO0ztbA/exec",
-  daysToShow: 10,
+  daysToShow: 14,
 };
 
 const state = {
@@ -14,8 +13,6 @@ const state = {
 const dateList = document.querySelector("#date-list");
 const slotList = document.querySelector("#slot-list");
 const dateRange = document.querySelector("#date-range");
-const calendarError = document.querySelector("#calendar-error");
-const timeError = document.querySelector("#time-error");
 const dateContinueButton = document.querySelector("#date-continue-button");
 const timeContinueButton = document.querySelector("#time-continue-button");
 const dateView = document.querySelector("#date-view");
@@ -47,17 +44,6 @@ function isWeekend(date) {
   return date.getDay() === 0 || date.getDay() === 6;
 }
 
-function nextBusinessDates(count) {
-  const dates = [];
-  let offset = 1;
-  while (dates.length < count) {
-    const date = localDate(offset);
-    if (!isWeekend(date)) dates.push(date);
-    offset += 1;
-  }
-  return dates;
-}
-
 function nextCalendarDates(count) {
   return Array.from({ length: count }, (_, index) => localDate(index + 1));
 }
@@ -70,18 +56,7 @@ function formatDateLabel(date) {
   return dateFormatter.format(date).replace(" г.", "");
 }
 
-function setCalendarError(message) {
-  calendarError.textContent = message || "";
-}
-
-function getApiUrl(action, date) {
-  const url = new URL(CONFIG.apiUrl);
-  url.searchParams.set("action", action);
-  if (date) url.searchParams.set("date", date);
-  return url;
-}
-
-function demoSlots(date) {
+function createSlots(date) {
   return Array.from({ length: 9 }, (_, index) => {
     const startHour = 11 + index;
     return {
@@ -89,25 +64,14 @@ function demoSlots(date) {
       date,
       start_time: `${String(startHour).padStart(2, "0")}:00`,
       end_time: `${String(startHour + 1).padStart(2, "0")}:00`,
-      location: "Учебный корпус",
-      available_participants: 10,
     };
   });
 }
 
-function immediateSlots(date) {
-  return demoSlots(date).map((slot) => ({
-    ...slot,
-    optimistic: true,
-  }));
-}
-
-async function loadSlots(date) {
-  setCalendarError("");
-  timeError.textContent = "";
+function selectDateSlots(date) {
   timeContinueButton.disabled = true;
   state.selectedSlot = null;
-  state.slots = immediateSlots(date);
+  state.slots = createSlots(date);
   renderSlots(state.slots);
 }
 
@@ -130,10 +94,6 @@ function renderDates() {
 }
 
 function renderSlots(slots) {
-  if (!slots.length) {
-    slotList.innerHTML = '<div class="empty-state">На этот день свободных мест нет. Выберите другую дату.</div>';
-    return;
-  }
   slotList.innerHTML = slots.map((slot) => `
     <button class="slot-option" type="button" data-slot-id="${slot.slot_id}">
       ${slot.start_time}–${slot.end_time}
@@ -152,12 +112,7 @@ function chooseDate(value) {
   if (isWeekend(new Date(`${value}T12:00:00`))) return;
   state.selectedDate = value;
   renderDates();
-  if (state.slots.length) {
-    const slotsForDate = state.slots.filter((slot) => slot.date === value);
-    renderSlots(slotsForDate.length ? slotsForDate : immediateSlots(value));
-  } else {
-    loadSlots(value);
-  }
+  selectDateSlots(value);
 }
 
 function showTime() {
@@ -217,14 +172,12 @@ function submitBooking(event) {
     idempotency_key: `website-${crypto.randomUUID()}`,
   };
 
-  if (!CONFIG.demoMode) {
-    fetch(CONFIG.apiUrl, {
-      method: "POST",
-      headers: { "Content-Type": "text/plain;charset=utf-8" },
-      body: JSON.stringify(bookingPayload),
-      keepalive: true,
-    }).catch(() => {});
-  }
+  fetch(CONFIG.apiUrl, {
+    method: "POST",
+    headers: { "Content-Type": "text/plain;charset=utf-8" },
+    body: JSON.stringify(bookingPayload),
+    keepalive: true,
+  }).catch(() => {});
 
   showSuccess();
 }
@@ -301,10 +254,10 @@ function setupCalendarActions() {
 }
 
 function init() {
-  state.dates = nextCalendarDates(14);
+  state.dates = nextCalendarDates(CONFIG.daysToShow);
   state.selectedDate = isoDate(state.dates.find((date) => !isWeekend(date)));
   renderDates();
-  loadSlots(state.selectedDate);
+  selectDateSlots(state.selectedDate);
   dateList.addEventListener("click", (event) => {
     const button = event.target.closest("[data-date]");
     if (button) chooseDate(button.dataset.date);
