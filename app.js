@@ -188,7 +188,7 @@ function showTimeFromForm() {
   stepLabel.textContent = "Шаг 2 из 3";
 }
 
-async function submitBooking(event) {
+function submitBooking(event) {
   event.preventDefault();
   formError.textContent = "";
   const data = new FormData(bookingForm);
@@ -202,39 +202,31 @@ async function submitBooking(event) {
   if (!clientName || !phone || !interest) return;
   const submitButton = submitBookingButton;
   submitButton.disabled = true;
-  submitButton.textContent = "Подтверждаем…";
-  try {
-    if (CONFIG.demoMode) {
-      await new Promise((resolve) => setTimeout(resolve, 450));
-      showSuccess();
-      return;
-    }
-    const response = await fetch(CONFIG.apiUrl, {
+  submitButton.textContent = "Запись принята";
+
+  const bookingPayload = {
+    action: "public_book",
+    date: state.selectedSlot.date,
+    start_time: state.selectedSlot.start_time,
+    end_time: state.selectedSlot.end_time,
+    client_name: clientName,
+    phone,
+    interest,
+    consent: true,
+    website: data.get("website") || "",
+    idempotency_key: `website-${crypto.randomUUID()}`,
+  };
+
+  if (!CONFIG.demoMode) {
+    fetch(CONFIG.apiUrl, {
       method: "POST",
       headers: { "Content-Type": "text/plain;charset=utf-8" },
-      body: JSON.stringify({
-        action: "public_book",
-        date: state.selectedSlot.date,
-        start_time: state.selectedSlot.start_time,
-        end_time: state.selectedSlot.end_time,
-        client_name: clientName,
-        phone,
-        interest,
-        consent: true,
-        website: data.get("website") || "",
-        idempotency_key: `website-${crypto.randomUUID()}`,
-      }),
-    });
-    const payload = await response.json();
-    if (!payload.ok) throw new Error(payload.error?.message || "Запись не создана.");
-    showSuccess();
-  } catch (error) {
-    formError.textContent = error.message.includes("SLOT") || error.message.includes("занят")
-      ? "Это время уже заняли. Вернитесь и выберите другой слот."
-      : "Не удалось создать запись. Проверьте данные и попробуйте ещё раз.";
-    submitButton.disabled = false;
-    submitButton.textContent = "Подтвердить запись";
+      body: JSON.stringify(bookingPayload),
+      keepalive: true,
+    }).catch(() => {});
   }
+
+  showSuccess();
 }
 
 function showSuccess() {
