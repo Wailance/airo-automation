@@ -4,15 +4,11 @@ const CONFIG = {
   daysToShow: 10,
 };
 
-const SLOTS_CACHE_KEY = "airo-public-slots-v3";
-const SLOTS_CACHE_TTL = 5 * 60 * 1000;
-
 const state = {
   dates: [],
   selectedDate: "",
   selectedSlot: null,
   slots: [],
-  slotsRequest: null,
 };
 
 const dateList = document.querySelector("#date-list");
@@ -111,56 +107,8 @@ async function loadSlots(date) {
   timeError.textContent = "";
   timeContinueButton.disabled = true;
   state.selectedSlot = null;
-
-  let cachedSlots = [];
-  try {
-    const cached = JSON.parse(localStorage.getItem(SLOTS_CACHE_KEY) || "null");
-    if (cached && Date.now() - cached.savedAt < SLOTS_CACHE_TTL) {
-      cachedSlots = Array.isArray(cached.slots) ? cached.slots : [];
-      state.slots = cachedSlots;
-      renderSlots(cachedSlots.filter((slot) => slot.date === date));
-    }
-  } catch (_) {
-    localStorage.removeItem(SLOTS_CACHE_KEY);
-  }
-
-  if (!cachedSlots.length) {
-    state.slots = immediateSlots(date);
-    renderSlots(state.slots);
-  }
-
-  try {
-    if (CONFIG.demoMode) {
-      state.slots = demoSlots(date);
-      renderSlots(state.slots.filter((slot) => slot.date === date));
-      return;
-    }
-    if (CONFIG.apiUrl.includes("PASTE_")) throw new Error("API_NOT_CONFIGURED");
-    if (state.slotsRequest) {
-      await state.slotsRequest;
-      renderSlots(state.slots.filter((slot) => slot.date === date));
-      return;
-    }
-    state.slotsRequest = fetch(getApiUrl("public_slots"));
-    const response = await state.slotsRequest;
-    const payload = await response.json();
-    if (!payload.ok) throw new Error(payload.error?.message || "Не удалось загрузить расписание.");
-    state.slots = payload.slots || [];
-    localStorage.setItem(SLOTS_CACHE_KEY, JSON.stringify({
-      savedAt: Date.now(),
-      slots: state.slots,
-    }));
-    renderSlots(state.slots.filter((slot) => slot.date === date));
-  } catch (error) {
-    if (!cachedSlots.length) {
-      slotList.innerHTML = "";
-      setCalendarError(error.message === "API_NOT_CONFIGURED"
-        ? "Не удалось подключить расписание."
-        : "Не удалось загрузить расписание. Попробуйте обновить страницу.");
-    }
-  } finally {
-    state.slotsRequest = null;
-  }
+  state.slots = immediateSlots(date);
+  renderSlots(state.slots);
 }
 
 function renderDates() {
@@ -266,7 +214,9 @@ async function submitBooking(event) {
       headers: { "Content-Type": "text/plain;charset=utf-8" },
       body: JSON.stringify({
         action: "public_book",
-        slot_id: state.selectedSlot.slot_id,
+        date: state.selectedSlot.date,
+        start_time: state.selectedSlot.start_time,
+        end_time: state.selectedSlot.end_time,
         client_name: clientName,
         phone,
         interest,
