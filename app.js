@@ -1,7 +1,6 @@
 const CONFIG = {
-  // Demo mode lets the whole flow run without Apps Script.
-  demoMode: true,
-  apiUrl: "PASTE_APPS_SCRIPT_EXEC_URL_HERE",
+  demoMode: false,
+  apiUrl: "https://script.google.com/macros/s/AKfycbyi0Xzq_tGh5WqinBHOegZ3aOA4-b2D_1YFFABMjZXhDT11n4aquIMM5gWvo80aO0ztbA/exec",
   daysToShow: 10,
 };
 
