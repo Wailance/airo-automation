@@ -99,6 +99,13 @@ function demoSlots(date) {
   });
 }
 
+function immediateSlots(date) {
+  return demoSlots(date).map((slot) => ({
+    ...slot,
+    optimistic: true,
+  }));
+}
+
 async function loadSlots(date) {
   setCalendarError("");
   timeError.textContent = "";
@@ -118,7 +125,8 @@ async function loadSlots(date) {
   }
 
   if (!cachedSlots.length) {
-    slotList.innerHTML = '<div class="empty-state">Загружаем свободное время…</div>';
+    state.slots = immediateSlots(date);
+    renderSlots(state.slots);
   }
 
   try {
@@ -197,7 +205,8 @@ function chooseDate(value) {
   state.selectedDate = value;
   renderDates();
   if (state.slots.length) {
-    renderSlots(state.slots.filter((slot) => slot.date === value));
+    const slotsForDate = state.slots.filter((slot) => slot.date === value);
+    renderSlots(slotsForDate.length ? slotsForDate : immediateSlots(value));
   } else {
     loadSlots(value);
   }
