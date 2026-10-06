@@ -250,7 +250,7 @@ function showSuccess() {
   stepLabel.textContent = "Готово";
   setupCalendarActions();
   document.querySelector("#success-copy").textContent =
-    `Пробный урок на ${formatDateLabel(new Date(`${state.selectedSlot.date}T12:00:00`))} в ${state.selectedSlot.start_time} подтверждён. ${CONFIG.demoMode ? "Это демонстрационная запись: данные никуда не отправлены." : "Мы свяжемся с вами по телефону для деталей."}`;
+    `Пробный урок на ${formatDateLabel(new Date(`${state.selectedSlot.date}T12:00:00`))} в ${state.selectedSlot.start_time} подтверждён. Мы свяжемся с вами по телефону для деталей.`;
 }
 
 function calendarDateValue(date, time) {
