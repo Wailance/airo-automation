@@ -172,12 +172,17 @@ function submitBooking(event) {
     idempotency_key: `website-${crypto.randomUUID()}`,
   };
 
-  fetch(CONFIG.apiUrl, {
+  const request = {
     method: "POST",
     headers: { "Content-Type": "text/plain;charset=utf-8" },
     body: JSON.stringify(bookingPayload),
     keepalive: true,
-  }).catch(() => {});
+  };
+  fetch(CONFIG.apiUrl, request)
+    .catch(() => new Promise((resolve) => {
+      setTimeout(() => resolve(fetch(CONFIG.apiUrl, request)), 1800);
+    }))
+    .catch(() => {});
 
   showSuccess();
 }
