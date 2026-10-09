@@ -26,7 +26,6 @@ const stepLabel = document.querySelector("#step-label");
 const consentInput = document.querySelector("#consent-checkbox");
 const submitBookingButton = document.querySelector("#submit-booking-button");
 const consentHint = document.querySelector("#consent-hint");
-const calendarButton = document.querySelector("#calendar-button");
 const googleCalendarLink = document.querySelector("#google-calendar-link");
 
 const monthFormatter = new Intl.DateTimeFormat("ru-RU", { month: "long" });
@@ -204,14 +203,6 @@ function calendarUtcValue(date) {
   return date.toISOString().replace(/[-:]/g, "").replace(/\.\d{3}Z$/, "Z");
 }
 
-function escapeIcsText(value) {
-  return String(value)
-    .replace(/\\/g, "\\\\")
-    .replace(/;/g, "\\;")
-    .replace(/,/g, "\\,")
-    .replace(/\r?\n/g, "\\n");
-}
-
 function setupCalendarActions() {
   const slot = state.selectedSlot;
   if (!slot) return;
@@ -228,34 +219,6 @@ function setupCalendarActions() {
   googleUrl.searchParams.set("details", description);
   googleUrl.searchParams.set("location", location);
   googleCalendarLink.href = googleUrl.toString();
-
-  calendarButton.onclick = () => {
-    const ics = [
-      "BEGIN:VCALENDAR",
-      "VERSION:2.0",
-      "PRODID:-//Aerogenii//Trial lesson//RU",
-      "CALSCALE:GREGORIAN",
-      "BEGIN:VEVENT",
-      `UID:${Date.now()}@airo-site-kirov.ru`,
-      `DTSTAMP:${calendarUtcValue(new Date())}`,
-      `DTSTART:${calendarUtcValue(start)}`,
-      `DTEND:${calendarUtcValue(end)}`,
-      `SUMMARY:${escapeIcsText(title)}`,
-      `DESCRIPTION:${escapeIcsText(description)}`,
-      `LOCATION:${escapeIcsText(location)}`,
-      "END:VEVENT",
-      "END:VCALENDAR",
-    ].join("\r\n");
-    const blob = new Blob([ics], { type: "text/calendar;charset=utf-8" });
-    const url = URL.createObjectURL(blob);
-    const link = document.createElement("a");
-    link.href = url;
-    link.download = `probnoe-zanyatie-${slot.date}.ics`;
-    document.body.appendChild(link);
-    link.click();
-    link.remove();
-    setTimeout(() => URL.revokeObjectURL(url), 1000);
-  };
 }
 
 function init() {

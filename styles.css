@@ -100,10 +100,8 @@ input:focus { border-color: var(--blue); box-shadow: 0 0 0 3px rgba(31,91,255,.1
 .success-icon { width: 58px; height: 58px; margin: 0 auto 24px; font-size: 23px; }
 .success-state h2 { margin-bottom: 16px; }
 .success-state p:not(.section-kicker) { color: var(--muted); line-height: 1.65; }
-.calendar-button { display: inline-flex; align-items: center; justify-content: center; gap: 8px; width: 100%; margin: 4px 0 10px; }
-.calendar-button svg { width: 17px; height: 17px; }
-.calendar-link { display: block; margin-bottom: 18px; color: var(--blue); font-size: 13px; font-weight: 700; text-decoration: none; }
-.calendar-link:hover { text-decoration: underline; }
+.calendar-link { display: inline-flex; align-items: center; justify-content: center; gap: 8px; width: 100%; margin: 4px 0 18px; text-decoration: none; }
+.calendar-link svg { width: 17px; height: 17px; }
 
 @media (max-width: 800px) {
   .booking-shell { display: block; }
