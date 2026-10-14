@@ -100,3 +100,4 @@
 @media(max-width:520px){.sector-grid{grid-template-columns:1fr;gap:14px}.sector{aspect-ratio:auto;min-height:330px}.sector-copy{min-height:330px;padding:22px 24px 26px}.sector-number{padding-bottom:28px}.income-line{display:grid;gap:12px}.income-estimate strong{font-size:34px}.income-line>p{font-size:12px}}
 
 .hero-proof-summary{max-width:360px}.hero-proof-summary span{color:rgba(255,255,255,.78);font-size:13px;line-height:1.4;text-transform:none}
+.hero-proof-hours{align-items:baseline!important;gap:7px!important}.hero-proof-hours small{color:rgba(255,255,255,.76);font-size:13px;text-transform:lowercase}.hero-proof-hours strong,.hero-proof>div:last-child strong{color:#4a69ff}
