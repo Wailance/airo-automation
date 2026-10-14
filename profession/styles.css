@@ -99,3 +99,4 @@
 @media(max-width:850px){.sector-grid{grid-template-columns:repeat(2,minmax(0,1fr))}.sector-copy{min-height:0;padding:20px 22px}.income-line{align-items:flex-start}}
 @media(max-width:520px){.sector-grid{grid-template-columns:1fr;gap:14px}.sector{aspect-ratio:auto;min-height:330px}.sector-copy{min-height:330px;padding:22px 24px 26px}.sector-number{padding-bottom:28px}.income-line{display:grid;gap:12px}.income-estimate strong{font-size:34px}.income-line>p{font-size:12px}}
 
+.hero-proof-summary{max-width:360px}.hero-proof-summary span{color:rgba(255,255,255,.78);font-size:13px;line-height:1.4;text-transform:none}
