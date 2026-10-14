@@ -6,9 +6,6 @@
     <meta name="description" content="Запись на бесплатный пробный урок по управлению дроном в школе «АэрогениИ»." />
     <title>Запись на пробный урок | АэрогениИ</title>
     <link rel="preload" as="image" href="./hero-source.jpg" />
-    <link rel="preconnect" href="https://fonts.googleapis.com" />
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-    <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
     <link rel="stylesheet" href="./styles.css" />
   </head>
   <body>
@@ -25,19 +22,28 @@
         <div class="intro-benefits" aria-label="Преимущества пробного урока">
           <div class="benefit">
             <span class="benefit-icon" aria-hidden="true">
-              <i data-lucide="gamepad-2"></i>
+              <svg viewBox="0 0 24 24" role="img">
+                <path d="M7 8h10a4 4 0 0 1 3.8 5.2l-1.1 3.4a2 2 0 0 1-3.5.6L14.8 16H9.2l-1.4 1.2a2 2 0 0 1-3.5-.6l-1.1-3.4A4 4 0 0 1 7 8Z"></path>
+                <path d="M8 11v4M6 13h4M16.5 12.5h.01M19 14.5h.01"></path>
+              </svg>
             </span>
             <span class="benefit-copy"><strong>Практика</strong><small>с инструктором</small></span>
           </div>
           <div class="benefit">
             <span class="benefit-icon" aria-hidden="true">
-              <i data-lucide="clock-3"></i>
+              <svg viewBox="0 0 24 24" role="img">
+                <circle cx="12" cy="12" r="8.5"></circle>
+                <path d="M12 7v5l3 2"></path>
+              </svg>
             </span>
             <span class="benefit-copy"><strong>1 час</strong><small>без опыта</small></span>
           </div>
           <div class="benefit">
             <span class="benefit-icon" aria-hidden="true">
-              <i data-lucide="package-check"></i>
+              <svg viewBox="0 0 24 24" role="img">
+                <path d="m12 3 7 4v10l-7 4-7-4V7l7-4Z"></path>
+                <path d="m5 7 7 4 7-4M12 11v10M9 15l1.5 1.5L14 13"></path>
+              </svg>
             </span>
             <span class="benefit-copy"><strong>Бесплатно</strong><small>оборудование на месте</small></span>
           </div>
@@ -120,14 +126,16 @@
           <h2>Ждём вас на пробном уроке</h2>
           <p id="success-copy"></p>
           <a class="secondary-button calendar-link" id="google-calendar-link" href="#" target="_blank" rel="noopener">
-            <i data-lucide="calendar-plus" aria-hidden="true"></i>
+            <svg viewBox="0 0 24 24" aria-hidden="true">
+              <rect x="3.5" y="5" width="17" height="15" rx="2"></rect>
+              <path d="M16 3v4M8 3v4M3.5 9h17M12 12v5M9.5 14.5h5"></path>
+            </svg>
             Добавить в Google Calendar
           </a>
           <a class="secondary-button" href="https://airo-site-kirov.ru/">Вернуться на сайт</a>
         </div>
       </section>
     </main>
-    <script src="https://unpkg.com/lucide@latest"></script>
     <script src="./app.js"></script>
   </body>
 </html>

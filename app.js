@@ -245,4 +245,3 @@ function init() {
 }
 
 init();
-if (window.lucide) window.lucide.createIcons();
