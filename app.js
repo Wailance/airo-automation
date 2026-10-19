@@ -56,15 +56,22 @@ function formatDateLabel(date) {
 }
 
 function createSlots(date) {
-  return Array.from({ length: 9 }, (_, index) => {
-    const startHour = 11 + index;
-    return {
-      slot_id: `${date}-trial-${String(startHour).padStart(2, "0")}00`,
+  return [
+    {
+      slot_id: `${date}-trial-morning`,
       date,
-      start_time: `${String(startHour).padStart(2, "0")}:00`,
-      end_time: `${String(startHour + 1).padStart(2, "0")}:00`,
-    };
-  });
+      start_time: "10:00",
+      end_time: "12:00",
+      period_label: "Первая половина дня",
+    },
+    {
+      slot_id: `${date}-trial-afternoon`,
+      date,
+      start_time: "13:00",
+      end_time: "18:00",
+      period_label: "Вторая половина дня",
+    },
+  ];
 }
 
 function selectDateSlots(date) {
@@ -95,7 +102,8 @@ function renderDates() {
 function renderSlots(slots) {
   slotList.innerHTML = slots.map((slot) => `
     <button class="slot-option" type="button" data-slot-id="${slot.slot_id}">
-      ${slot.start_time}–${slot.end_time}
+      <strong>${slot.period_label}</strong>
+      <span>${slot.start_time}–${slot.end_time}</span>
     </button>`).join("");
   slotList.querySelectorAll(".slot-option").forEach((button) => {
     button.addEventListener("click", () => {
@@ -132,7 +140,7 @@ function showForm() {
   timeView.hidden = true;
   bookingForm.hidden = false;
   stepLabel.textContent = "Шаг 3 из 3";
-  selectedSlot.textContent = `${formatDateLabel(new Date(`${state.selectedSlot.date}T12:00:00`))}, ${state.selectedSlot.start_time}–${state.selectedSlot.end_time}`;
+  selectedSlot.textContent = `${formatDateLabel(new Date(`${state.selectedSlot.date}T12:00:00`))}, ${state.selectedSlot.period_label}`;
   document.querySelector('[name="client_name"]').focus();
 }
 
@@ -192,30 +200,26 @@ function showSuccess() {
   stepLabel.textContent = "Готово";
   setupCalendarActions();
   document.querySelector("#success-copy").textContent =
-    `Пробный урок на ${formatDateLabel(new Date(`${state.selectedSlot.date}T12:00:00`))} в ${state.selectedSlot.start_time} подтверждён. Мы свяжемся с вами по телефону для деталей.`;
+    `Заявка на пробный урок ${formatDateLabel(new Date(`${state.selectedSlot.date}T12:00:00`))}, ${state.selectedSlot.period_label.toLowerCase()} подтверждена. Мы свяжемся с вами по телефону для деталей.`;
 }
 
-function calendarDateValue(date, time) {
-  return new Date(`${date}T${time}:00+03:00`);
-}
-
-function calendarUtcValue(date) {
-  return date.toISOString().replace(/[-:]/g, "").replace(/\.\d{3}Z$/, "Z");
+function nextDateValue(date) {
+  const nextDate = new Date(`${date}T00:00:00Z`);
+  nextDate.setUTCDate(nextDate.getUTCDate() + 1);
+  return nextDate.toISOString().slice(0, 10).replace(/-/g, "");
 }
 
 function setupCalendarActions() {
   const slot = state.selectedSlot;
   if (!slot) return;
 
-  const start = calendarDateValue(slot.date, slot.start_time);
-  const end = calendarDateValue(slot.date, slot.end_time);
   const title = "Пробное занятие по дронам «АэрогениИ»";
   const location = "Киров, ул. Широтная, д. 2";
-  const description = "Бесплатное пробное занятие. Практика с инструктором, оборудование на месте.";
+  const description = `Бесплатное пробное занятие. Предпочтительный период: ${slot.start_time}–${slot.end_time}. Практика с инструктором, оборудование на месте.`;
   const googleUrl = new URL("https://calendar.google.com/calendar/render");
   googleUrl.searchParams.set("action", "TEMPLATE");
   googleUrl.searchParams.set("text", title);
-  googleUrl.searchParams.set("dates", `${calendarUtcValue(start)}/${calendarUtcValue(end)}`);
+  googleUrl.searchParams.set("dates", `${slot.date.replace(/-/g, "")}/${nextDateValue(slot.date)}`);
   googleUrl.searchParams.set("details", description);
   googleUrl.searchParams.set("location", location);
   googleCalendarLink.href = googleUrl.toString();
