@@ -70,5 +70,18 @@
     </main>
     <footer class="site-footer"><img src="./brand-logo-source.png" alt="АэрогениИ" /><span>Киров, ул. Широтная, д. 2</span><a href="tel:+78332250309">+7 (8332) 25-03-09</a></footer>
     <div class="sticky-cta"><span>Готовы попробовать?</span><a href="https://airo-site-kirov.ru/zapis">Записаться на пробное <b>↗</b></a></div>
+    <script>
+      const sendFrameHeight = () => {
+        if (window.parent !== window) {
+          window.parent.postMessage(
+            { type: "airo-landing-height", height: document.documentElement.scrollHeight },
+            "*"
+          );
+        }
+      };
+      window.addEventListener("load", sendFrameHeight);
+      window.addEventListener("resize", sendFrameHeight);
+      new ResizeObserver(sendFrameHeight).observe(document.documentElement);
+    </script>
   </body>
 </html>
