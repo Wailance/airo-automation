@@ -80,6 +80,8 @@ h2 { margin-bottom: 0; font-size: clamp(26px, 3vw, 38px); line-height: 1.1; lett
 .slot-option { display: grid; gap: 6px; min-height: 84px; padding: 14px 10px; border: 1px solid var(--line); border-radius: 5px; background: var(--paper); color: var(--ink); font-weight: 700; }
 .slot-option strong { font-size: 14px; }
 .slot-option span { color: var(--muted); font-size: 13px; font-weight: 600; }
+.slot-option.unavailable { border-color: #ececec; background: #eeeeee; color: #b7b7b7; cursor: not-allowed; }
+.slot-option.unavailable span { color: #a9a9a9; }
 .slot-option:hover, .slot-option.selected { border-color: var(--blue); background: #edf2ff; }
 .primary-button, .secondary-button { display: inline-flex; align-items: center; justify-content: center; min-height: 54px; padding: 0 24px; border-radius: 4px; font-weight: 800; text-decoration: none; }
 .primary-button { width: 100%; border: 1px solid var(--blue); background: var(--blue); color: white; }

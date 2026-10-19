@@ -43,6 +43,11 @@ function isWeekend(date) {
   return date.getDay() === 0 || date.getDay() === 6;
 }
 
+function isTomorrow(date) {
+  const tomorrow = localDate(1);
+  return isoDate(date) === isoDate(tomorrow);
+}
+
 function nextCalendarDates(count) {
   return Array.from({ length: count }, (_, index) => localDate(index + 1));
 }
@@ -63,6 +68,7 @@ function createSlots(date) {
       start_time: "10:00",
       end_time: "12:00",
       period_label: "Первая половина дня",
+      available: !isTomorrow(new Date(`${date}T12:00:00`)),
     },
     {
       slot_id: `${date}-trial-afternoon`,
@@ -101,9 +107,9 @@ function renderDates() {
 
 function renderSlots(slots) {
   slotList.innerHTML = slots.map((slot) => `
-    <button class="slot-option" type="button" data-slot-id="${slot.slot_id}">
+    <button class="slot-option${slot.available === false ? " unavailable" : ""}" type="button" data-slot-id="${slot.slot_id}" ${slot.available === false ? "disabled" : ""}>
       <strong>${slot.period_label}</strong>
-      <span>${slot.start_time}–${slot.end_time}</span>
+      <span>${slot.available === false ? "Недоступно на завтра" : `${slot.start_time}–${slot.end_time}`}</span>
     </button>`).join("");
   slotList.querySelectorAll(".slot-option").forEach((button) => {
     button.addEventListener("click", () => {
