@@ -203,23 +203,27 @@ function showSuccess() {
     `Заявка на пробный урок ${formatDateLabel(new Date(`${state.selectedSlot.date}T12:00:00`))}, ${state.selectedSlot.period_label.toLowerCase()} подтверждена. Мы свяжемся с вами по телефону для деталей.`;
 }
 
-function nextDateValue(date) {
-  const nextDate = new Date(`${date}T00:00:00Z`);
-  nextDate.setUTCDate(nextDate.getUTCDate() + 1);
-  return nextDate.toISOString().slice(0, 10).replace(/-/g, "");
+function calendarDateValue(date, time) {
+  return new Date(`${date}T${time}:00+03:00`);
+}
+
+function calendarUtcValue(date) {
+  return date.toISOString().replace(/[-:]/g, "").replace(/\.\d{3}Z$/, "Z");
 }
 
 function setupCalendarActions() {
   const slot = state.selectedSlot;
   if (!slot) return;
 
+  const start = calendarDateValue(slot.date, slot.start_time);
+  const end = calendarDateValue(slot.date, slot.end_time);
   const title = "Пробное занятие по дронам «АэрогениИ»";
   const location = "Киров, ул. Широтная, д. 2";
   const description = `Бесплатное пробное занятие. Предпочтительный период: ${slot.start_time}–${slot.end_time}. Практика с инструктором, оборудование на месте.`;
   const googleUrl = new URL("https://calendar.google.com/calendar/render");
   googleUrl.searchParams.set("action", "TEMPLATE");
   googleUrl.searchParams.set("text", title);
-  googleUrl.searchParams.set("dates", `${slot.date.replace(/-/g, "")}/${nextDateValue(slot.date)}`);
+  googleUrl.searchParams.set("dates", `${calendarUtcValue(start)}/${calendarUtcValue(end)}`);
   googleUrl.searchParams.set("details", description);
   googleUrl.searchParams.set("location", location);
   googleCalendarLink.href = googleUrl.toString();
